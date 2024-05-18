@@ -3,29 +3,34 @@ import {
 	OpenAPIRouteSchema,
 	Path,
 } from "@cloudflare/itty-router-openapi";
-import { Task } from "../types";
+import {Store} from "./types/Store";
 
-export class TaskFetch extends OpenAPIRoute {
+export class StoreFetch extends OpenAPIRoute {
 	static schema: OpenAPIRouteSchema = {
-		tags: ["Tasks"],
-		summary: "Get a single Task by slug",
+		tags: ["Stores"],
+		summary: "Get a single Store by store Id",
 		parameters: {
-			taskSlug: Path(String, {
-				description: "Task slug",
+			storeId: Path(String, {
+				description: "Store Id",
 			}),
 		},
 		responses: {
 			"200": {
-				description: "Returns a single task if found",
+				description: "Returns a single Store if found",
 				schema: {
 					success: Boolean,
-					result: {
-						task: Task,
-					},
+					store:  Store,
+				},
+			},
+			"204": {
+				description: "NOT Found User response",
+				schema: {
+					success: Boolean,
+					store:  Store,
 				},
 			},
 			"404": {
-				description: "Task not found",
+				description: "Store not found",
 				schema: {
 					success: Boolean,
 					error: String,
@@ -40,10 +45,8 @@ export class TaskFetch extends OpenAPIRoute {
 		context: any,
 		data: Record<string, any>
 	) {
-		// Retrieve the validated slug
-		const { taskSlug } = data.params;
-
-		// Implement your own object fetch here
+		console.debug("params:%o", data.params)
+		const { storeId } = data.params;
 
 		const exists = true;
 
@@ -62,13 +65,6 @@ export class TaskFetch extends OpenAPIRoute {
 
 		return {
 			success: true,
-			task: {
-				name: "my task",
-				slug: taskSlug,
-				description: "this needs to be done",
-				completed: false,
-				due_date: new Date().toISOString().slice(0, 10),
-			},
 		};
 	}
 }

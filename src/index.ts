@@ -1,26 +1,54 @@
 import { OpenAPIRouter } from "@cloudflare/itty-router-openapi";
-import { TaskCreate } from "./endpoints/taskCreate";
-import { TaskDelete } from "./endpoints/taskDelete";
-import { TaskFetch } from "./endpoints/taskFetch";
-import { TaskList } from "./endpoints/taskList";
+
+import {NOT_FOUND} from "./endpoints/CustomHttpStatus";
+import { Authenticate } from "./endpoints/Authenticate";
+
+import { StoreCreate } from "./endpoints/StoreCreate";
+import { StoreDelete } from "./endpoints/StoreDelete";
+import { StoreFetch } from "./endpoints/StoreFetch";
+import { StoreSearch } from "./endpoints/StoreSearch";
+
+import { UserFetch } from "./endpoints/UserFetch";
+import { UserSearch } from "./endpoints/UserSearch";
 
 export const router = OpenAPIRouter({
 	docs_url: "/",
+	schema: {
+		security: [
+			{
+				BearerAuth: [],
+			},
+		],
+	},
 });
 
-router.get("/api/tasks/", TaskList);
-router.post("/api/tasks/", TaskCreate);
-router.get("/api/tasks/:taskSlug/", TaskFetch);
-router.delete("/api/tasks/:taskSlug/", TaskDelete);
+router.registry.registerComponent(
+	'securitySchemes',
+	'BearerAuth',
+	{
+		type: 'http',
+		scheme: 'bearer',
+	},
+)
+
+router.all('/*', Authenticate)
+
+router.get("/store/", StoreSearch);
+router.get("/store/:storeId/", StoreFetch);
+router.post("/store/", StoreCreate);
+router.delete("/store/:storeId/", StoreDelete);
+
+router.get('/user/', UserSearch)
+router.get('/user/:userId/', UserFetch)
 
 // 404 for everything else
 router.all("*", () =>
 	Response.json(
 		{
 			success: false,
-			error: "Route not found",
+			error: NOT_FOUND.message,
 		},
-		{ status: 404 }
+		{ status: NOT_FOUND.code }
 	)
 );
 
