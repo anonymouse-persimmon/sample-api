@@ -7,7 +7,7 @@ export class UserFetch extends OpenAPIRoute {
         tags: ['Users'],
         summary: 'Get a single User by user Id',
         parameters: {
-            userId: Path(z.coerce.number().gte(10).lte(100), {
+            userId: Path(z.string(), {
                 description: 'User ID',
             }),
         },

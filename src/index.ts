@@ -1,4 +1,5 @@
 import { OpenAPIRouter } from "@cloudflare/itty-router-openapi";
+import { createCors } from 'itty-router'
 
 import {NOT_FOUND} from "./endpoints/CustomHttpStatus";
 import { Authenticate } from "./endpoints/Authenticate";
@@ -21,6 +22,7 @@ export const router = OpenAPIRouter({
 		],
 	},
 });
+const { preflight, corsify } = createCors()
 
 router.registry.registerComponent(
 	'securitySchemes',
@@ -31,7 +33,8 @@ router.registry.registerComponent(
 	},
 )
 
-router.all('/*', Authenticate)
+router.all('*', preflight)
+router.all('*', Authenticate)
 
 router.get("/store/", StoreSearch);
 router.get("/store/:storeId/", StoreFetch);
@@ -53,5 +56,7 @@ router.all("*", () =>
 );
 
 export default {
-	fetch: router.handle,
+	fetch: async (request, env, ctx) => {
+		return router.handle(request, env, ctx).then(corsify)
+	},
 };
