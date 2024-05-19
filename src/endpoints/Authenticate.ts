@@ -23,17 +23,21 @@ const getBearer = (request: Request): null | string => {
 }
 
 const verify = async (token: string, env: any) => {
-    // console.group("verify token")
-    // console.debug("token:" + token)
-    // console.debug("JWKS_URL:" + env.JWKS_URL)
-    // console.debug("JWT_ISSUER:" + env.JWT_ISSUER)
-    // console.debug("JWT_AUDIENCE:" + env.JWT_AUDIENCE)
-    // console.groupEnd()
+    const jwksUrl = await env.SETTINGS.get("JWKS_URL")
+    const iss = await env.SETTINGS.get("JWT_ISSUER")
+    const aud = await env.SETTINGS.get("JWT_AUDIENCE")
 
-    const JWKS = await jose.createRemoteJWKSet(new URL(env.JWKS_URL))
+    console.group("verify token")
+    console.debug("token:" + token)
+    console.debug("JWKS_URL:" + jwksUrl)
+    console.debug("JWT_ISSUER:" + iss)
+    console.debug("JWT_AUDIENCE:" + aud)
+    console.groupEnd()
+
+    const JWKS = await jose.createRemoteJWKSet(new URL(jwksUrl))
     const options:JWTVerifyOptions = {
-        issuer: env.JWT_ISSUER,
-        audience: env.JWT_AUDIENCE,
+        issuer: iss,
+        audience: aud,
     }
     const {payload, protectedHeader} =
         await jose.jwtVerify(token, JWKS, options).catch(async (error) => {

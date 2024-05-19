@@ -1,7 +1,6 @@
 import { OpenAPIRoute, Path, Header } from '@cloudflare/itty-router-openapi'
 import {z} from 'zod'
 import { User } from "./types/User"
-import { OK } from "./CustomHttpStatus"
 
 export class UserFetch extends OpenAPIRoute {
     static schema = {
